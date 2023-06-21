@@ -109,7 +109,7 @@ GameObject:
   - component: {fileID: 6620757073124098123}
   - component: {fileID: 1135921322421341829}
   - component: {fileID: 435513122443126193}
-  - component: {fileID: 5054100916229139625}
+  - component: {fileID: 776225512409394265}
   m_Layer: 0
   m_Name: Character
   m_TagString: Untagged
@@ -232,15 +232,12 @@ MonoBehaviour:
   jumpSpeed: 10
   jumpPreGroundingGraceTime: 0
   jumpPostGroundingGraceTime: 0
-  chargeSpeed: 15
-  maxChargeTime: 1.5
-  stoppedTime: 1
   NoClipMoveSpeed: 10
   NoClipSharpness: 15
   gravity: {x: 0, y: -30, z: 0}
   orientTowardsGravity: 1
   IgnoredColliders: []
---- !u!114 &5054100916229139625
+--- !u!114 &776225512409394265
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -249,12 +246,13 @@ MonoBehaviour:
   m_GameObject: {fileID: 1035564366599082487}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c1e976e8165754443af4676ba0b53cf9, type: 3}
+  m_Script: {fileID: 11500000, guid: 7148080128e9c4540982c131257d3a44, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   _characterController: {fileID: 435513122443126193}
   _characterCamera: {fileID: 6312774791696899356}
-  cameraFollowPoint: {fileID: 1029965117622184921}
+  _cameraFollowPoint: {fileID: 1029965117622184921}
+  _joystick: {fileID: 0}
 --- !u!1 &3069695076004781356
 GameObject:
   m_ObjectHideFlags: 0

@@ -130,7 +130,7 @@ public class PlayerCharacterController : MonoBehaviour, ICharacterController
     }
     #endregion State
 
-    /// <summary>
+    /// <summary> 
     /// MyPlayer вызывает это каждый кадр, чтобы сообщить персонажу, какие у него входные данные.
     /// </summary>
     public void SetInputs(ref PlayerCharacterInputs inputs)
@@ -190,12 +190,17 @@ public class PlayerCharacterController : MonoBehaviour, ICharacterController
                     }
 
                     // Roll input
-                    if(inputs.isRollDown)
+                    if(inputs.isRollDown )
                     {
-                        // Применить импульс
-                        AddVelocity(transform.forward * 40f);
+                        if(motor.GroundingStatus.IsStableOnGround)
+                        {
+                            _animator.SetTrigger(HashAnimParam.PlayerIsRoll);
+                        }
 
-                        _animator.SetTrigger(HashAnimParam.PlayerIsRoll);
+                        motor.ForceUnground(0.1f);
+
+                        // Применить импульс
+                        AddVelocity(transform.forward * 20f);
                     }
 
                     break;
@@ -294,7 +299,9 @@ public class PlayerCharacterController : MonoBehaviour, ICharacterController
                         currentVelocity = Vector3.Lerp(currentVelocity, targetMovementVelocity, 1 - Mathf.Exp(-stableMovementSharpness * deltaTime));
 
                         // Задаем аниматору параметр
-                        _animator.SetFloat(HashAnimParam.PlayerVelocity, currentVelocity.magnitude);
+                        _animator.SetFloat(HashAnimParam.PlayerVelocity, currentVelocity.magnitude/maxStableMoveSpeed);
+
+                        _animator.SetBool(HashAnimParam.PlayerOnAir, false);
                     }
                     else
                     {
@@ -319,6 +326,8 @@ public class PlayerCharacterController : MonoBehaviour, ICharacterController
 
                         // Drag
                         currentVelocity *= (1f / (1f + (drag * deltaTime)));
+
+                        _animator.SetBool(HashAnimParam.PlayerOnAir, true);
                     }
 
                     // Handle jumping
@@ -497,12 +506,10 @@ public class PlayerCharacterController : MonoBehaviour, ICharacterController
     protected void OnLanded()
     {
         _animator.SetTrigger(HashAnimParam.PlayerIsLanded);
-        _animator.SetBool(HashAnimParam.PlayerOnAir, false);
     }
 
     protected void OnLeaveStableGround()
     {
         _animator.SetTrigger(HashAnimParam.PlayerIsLeaveStableGround);
-        _animator.SetBool(HashAnimParam.PlayerOnAir, true);
     }
 }
