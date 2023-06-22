@@ -252,7 +252,13 @@ MonoBehaviour:
   _characterController: {fileID: 435513122443126193}
   _characterCamera: {fileID: 6312774791696899356}
   _cameraFollowPoint: {fileID: 1029965117622184921}
-  _joystick: {fileID: 0}
+  _horizontalSensitivity: 8
+  _verticalSensitivity: 5
+  _movementJoystick: {fileID: 0}
+  _cameraJoystick: {fileID: 0}
+  _jumpButton: {fileID: 0}
+  _rollButton: {fileID: 0}
+  _aimingButton: {fileID: 0}
 --- !u!1 &3069695076004781356
 GameObject:
   m_ObjectHideFlags: 0
@@ -465,6 +471,16 @@ PrefabInstance:
         type: 3}
       propertyPath: m_ApplyRootMotion
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 9166114781862303781, guid: 325c2a72f558d4e419ec4f9ea74e54f5,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 9166215289178047139, guid: 325c2a72f558d4e419ec4f9ea74e54f5,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 325c2a72f558d4e419ec4f9ea74e54f5, type: 3}

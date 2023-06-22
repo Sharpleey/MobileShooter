@@ -8,5 +8,6 @@ public struct PlayerCharacterInputs
     public bool isJumpDown;
     public bool isJumpHeld;
     public bool isRollDown;
+    public bool isAimingToggle;
     public bool isNoClipDown;
 }

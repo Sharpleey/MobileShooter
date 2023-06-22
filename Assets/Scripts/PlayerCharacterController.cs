@@ -190,18 +190,18 @@ public class PlayerCharacterController : MonoBehaviour, ICharacterController
                     }
 
                     // Roll input
-                    if(inputs.isRollDown )
+                    if(inputs.isRollDown)
                     {
                         if(motor.GroundingStatus.IsStableOnGround)
                         {
                             _animator.SetTrigger(HashAnimParam.PlayerIsRoll);
                         }
 
-                        motor.ForceUnground(0.1f);
-
                         // Применить импульс
                         AddVelocity(transform.forward * 20f);
                     }
+
+                    _animator.SetBool(HashAnimParam.PlayerOnAiming, inputs.isAimingToggle);
 
                     break;
                 }

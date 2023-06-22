@@ -8,4 +8,5 @@ public static class HashAnimParam
     public static int PlayerIsLeaveStableGround = Animator.StringToHash("IsLeaveStableGround");
     public static int PlayerIsLanded = Animator.StringToHash("IsLanded");
     public static int PlayerOnAir = Animator.StringToHash("OnAir");
+    public static int PlayerOnAiming = Animator.StringToHash("OnAiming");
 }

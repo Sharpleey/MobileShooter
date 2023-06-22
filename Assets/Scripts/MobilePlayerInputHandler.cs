@@ -1,27 +1,71 @@
 using UnityEngine;
-
+using UnityEngine.UI;
 public class MobilePlayerInputHandler : MonoBehaviour
 {
+    #region Serialize fields
+    [Header("CharacterController")]
     [SerializeField] private PlayerCharacterController _characterController;
+
+    [Header("CharacterCamera")]
     [SerializeField] private CharacterCamera _characterCamera;
-
-    [Space(10)]
     [SerializeField] private Transform _cameraFollowPoint;
+    [SerializeField] private float _horizontalSensitivity = 8f;
+    [SerializeField] private float _verticalSensitivity = 5f;
 
-    [Space(10)]
-    [SerializeField] private Joystick _joystickMovement;
-    [SerializeField] private Joystick _joystickCamera;
+    [Header("Joysticks")]
+    [SerializeField] private Joystick _movementJoystick;
+    [SerializeField] private Joystick _cameraJoystick;
 
+    [Header("Buttons")]
+    [SerializeField] private Button _jumpButton;
+    [SerializeField] private Button _rollButton;
+    [SerializeField] private Button _aimingButton;
+    #endregion Serialize fields
 
+    #region Properties
+    /// <summary>
+    /// Âûחûגאועסÿ ג EventTrigger ף JumpButton
+    /// </summary>
+    public bool IsJumpDown
+    {
+        set
+        {
+            _inputs.isJumpDown = value;
+        }
+    }
+
+    /// <summary>
+    /// Âûחûגאועסÿ ג EventTrigger ף RollButton
+    /// </summary>
+    public bool IsRollDown
+    {
+        set
+        {
+            _inputs.isRollDown = value;
+        }
+    }
+
+    /// <summary>
+    /// Âûחûגאועסÿ ג EventTrigger ף AimingButton
+    /// </summary>
+    public bool IsAimingToggle
+    {
+        set
+        {
+            _inputs.isAimingToggle = !_inputs.isAimingToggle;
+        }
+    }
+
+    #endregion Properties
+
+    #region Private fields
     private Vector3 _lookInputVector = Vector3.zero;
-
     private PlayerCharacterInputs _inputs = new PlayerCharacterInputs();
+    #endregion Private fields
 
     #region Mono
     private void Start()
     {
-        //Cursor.lockState = CursorLockMode.Locked;
-
         // Tell camera to follow transform
         _characterCamera.SetFollowTransform(_cameraFollowPoint);
 
@@ -30,7 +74,7 @@ public class MobilePlayerInputHandler : MonoBehaviour
         _characterCamera.IgnoredColliders.AddRange(_characterController.GetComponentsInChildren<Collider>());
     }
 
-    private void FixedUpdate()
+    private void Update()
     {
         HandleCharacterInput();
     }
@@ -41,20 +85,14 @@ public class MobilePlayerInputHandler : MonoBehaviour
     }
     #endregion Mono
 
-    #region Private methods
+    #region Private methods 
     private void HandleCameraInput()
     {
         // Create the look input vector for the camera
-        float mouseLookAxisUp = _joystickCamera.Vertical; 
-        float mouseLookAxisRight = _joystickCamera.Horizontal;
+        float mouseLookAxisUp = _cameraJoystick.Vertical * _verticalSensitivity; 
+        float mouseLookAxisRight = _cameraJoystick.Horizontal * _horizontalSensitivity;
 
         _lookInputVector = new Vector3(mouseLookAxisRight, mouseLookAxisUp, 0f);
-
-        //// Prevent moving the camera while the cursor isn't locked
-        //if (Cursor.lockState != CursorLockMode.Locked)
-        //{
-        //    _lookInputVector = Vector3.zero;
-        //}
 
         // Apply inputs to the camera
         _characterCamera.UpdateWithInput(Time.deltaTime, _lookInputVector);
@@ -62,20 +100,14 @@ public class MobilePlayerInputHandler : MonoBehaviour
 
     private void HandleCharacterInput()
     {
-
         // Build the CharacterInputs struct
-        _inputs.moveAxisForward = _joystickMovement.Vertical;
-        _inputs.moveAxisRight = _joystickMovement.Horizontal;
+        _inputs.moveAxisForward = _movementJoystick.Vertical;
+        _inputs.moveAxisRight = _movementJoystick.Horizontal;
         _inputs.cameraRotation = _characterCamera.Transform.rotation;
-        _inputs.isJumpDown = Input.GetKeyDown(KeyCode.Space);
-        _inputs.isJumpHeld = Input.GetKey(KeyCode.Space);
-        _inputs.isRollDown = Input.GetKeyDown(KeyCode.LeftShift);
         _inputs.isNoClipDown = Input.GetKeyUp(KeyCode.G);
 
         // Apply inputs to character
         _characterController.SetInputs(ref _inputs);
-
-      
     }
     #endregion Private methods
 }
