@@ -25,17 +25,19 @@ public class PlayerCharacterController : MonoBehaviour, ICharacterController
     public float jumpPreGroundingGraceTime = 0f;
     public float jumpPostGroundingGraceTime = 0f;
 
+    [Header("Roll")]
+    public float rollingSpeed = 10f;
+    public float maxRollTime = 1.5f;
+    public float stoppedTime = 0;
+
     [Header("NoClip")]
     public float NoClipMoveSpeed = 10f;
     public float NoClipSharpness = 15;
 
     [Header("Misc")]
-    //public bool RotationObstruction;
     public Vector3 gravity = new Vector3(0, -30f, 0);
     public bool orientTowardsGravity = true;
-    //public Transform MeshRoot;
     public List<Collider> IgnoredColliders = new List<Collider>();
-
 
     public PlayerCharacterState CurrentCharacterState { get; private set; }
 
@@ -54,6 +56,14 @@ public class PlayerCharacterController : MonoBehaviour, ICharacterController
 
     private float _timeSinceJumpRequested = Mathf.Infinity;
     private float _timeSinceLastAbleToJump = 0f;
+
+    #region Rolling
+    private Vector3 _currentChargeVelocity;
+    private bool _isStopped;
+    private bool _mustStopVelocity = false;
+    private float _timeSinceStartedCharge = 0;
+    private float _timeSinceStopped = 0;
+    #endregion
 
     private Animator _animator;
 
@@ -96,6 +106,16 @@ public class PlayerCharacterController : MonoBehaviour, ICharacterController
         {
             case PlayerCharacterState.Default:
                 {
+                    break;
+                }
+            case PlayerCharacterState.Rolling:
+                {
+                    _animator.SetTrigger(HashAnimParam.PlayerIsRoll);
+
+                    _currentChargeVelocity = motor.CharacterForward * rollingSpeed;
+                    _isStopped = false;
+                    _timeSinceStartedCharge = 0f;
+                    _timeSinceStopped = 0f;
                     break;
                 }
             case PlayerCharacterState.NoClip:
@@ -147,6 +167,11 @@ public class PlayerCharacterController : MonoBehaviour, ICharacterController
                 TransitionToState(PlayerCharacterState.Default);
             }
         }
+        // Handle state transition from input
+        else if (inputs.isRollDown && CurrentCharacterState != PlayerCharacterState.Rolling)
+        {
+            TransitionToState(PlayerCharacterState.Rolling);
+        }
 
         _jumpInputIsHeld = inputs.isJumpHeld;
 
@@ -189,18 +214,6 @@ public class PlayerCharacterController : MonoBehaviour, ICharacterController
                         _animator.SetTrigger(HashAnimParam.PlayerIsJump);
                     }
 
-                    // Roll input
-                    if(inputs.isRollDown)
-                    {
-                        if(motor.GroundingStatus.IsStableOnGround)
-                        {
-                            _animator.SetTrigger(HashAnimParam.PlayerIsRoll);
-                        }
-
-                        // Применить импульс
-                        AddVelocity(transform.forward * 20f);
-                    }
-
                     _animator.SetBool(HashAnimParam.PlayerOnAiming, inputs.isAimingToggle);
 
                     break;
@@ -220,6 +233,16 @@ public class PlayerCharacterController : MonoBehaviour, ICharacterController
         {
             case PlayerCharacterState.Default:
                 {
+                    break;
+                }
+            case PlayerCharacterState.Rolling:
+                {
+                    // Update times
+                    _timeSinceStartedCharge += deltaTime;
+                    if (_isStopped)
+                    {
+                        _timeSinceStopped += deltaTime;
+                    }
                     break;
                 }
         }
@@ -389,6 +412,30 @@ public class PlayerCharacterController : MonoBehaviour, ICharacterController
 
                     break;
                 }
+            case PlayerCharacterState.Rolling:
+                {
+                    // If we have stopped and need to cancel velocity, do it here
+                    if (_mustStopVelocity)
+                    {
+                        currentVelocity = Vector3.zero;
+                        _mustStopVelocity = false;
+                    }
+
+                    if (_isStopped)
+                    {
+                        // When stopped, do no velocity handling except gravity
+                        currentVelocity += gravity * deltaTime;
+                    }
+                    else
+                    {
+                        // When charging, velocity is always constant
+                        float previousY = currentVelocity.y;
+                        currentVelocity = _currentChargeVelocity;
+                        currentVelocity.y = previousY;
+                        currentVelocity += gravity * deltaTime;
+                    }
+                    break;
+                }
             case PlayerCharacterState.NoClip:
                 {
                     float verticalInput = 0f + (_jumpInputIsHeld ? 1f : 0f);
@@ -432,6 +479,22 @@ public class PlayerCharacterController : MonoBehaviour, ICharacterController
 
                     break;
                 }
+            case PlayerCharacterState.Rolling:
+                {
+                    // Detect being stopped by elapsed time
+                    if (!_isStopped && _timeSinceStartedCharge > maxRollTime)
+                    {
+                        _mustStopVelocity = true;
+                        _isStopped = true;
+                    }
+
+                    // Detect end of stopping phase and transition back to default movement state
+                    if (_timeSinceStopped > stoppedTime)
+                    {
+                        TransitionToState(PlayerCharacterState.Default);
+                    }
+                    break;
+                }
         }
        
     }
@@ -461,6 +524,16 @@ public class PlayerCharacterController : MonoBehaviour, ICharacterController
                         _wallJumpNormal = hitNormal;
                     }
 
+                    break;
+                }
+            case PlayerCharacterState.Rolling:
+                {
+                    // Detect being stopped by obstructions
+                    if (!_isStopped && !hitStabilityReport.IsStable && Vector3.Dot(-hitNormal, _currentChargeVelocity.normalized) > 0.5f)
+                    {
+                        _mustStopVelocity = true;
+                        _isStopped = true;
+                    }
                     break;
                 }
         }

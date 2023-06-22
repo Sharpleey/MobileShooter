@@ -4160,6 +4160,21 @@ PrefabInstance:
       propertyPath: jumpSpeed
       value: 10
       objectReference: {fileID: 0}
+    - target: {fileID: 435513122443126193, guid: e4a8566795b349d42964aa1cf7d90f79,
+        type: 3}
+      propertyPath: maxRollTime
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 435513122443126193, guid: e4a8566795b349d42964aa1cf7d90f79,
+        type: 3}
+      propertyPath: stoppedTime
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 435513122443126193, guid: e4a8566795b349d42964aa1cf7d90f79,
+        type: 3}
+      propertyPath: rollingSpeed
+      value: 8
+      objectReference: {fileID: 0}
     - target: {fileID: 776225512409394265, guid: e4a8566795b349d42964aa1cf7d90f79,
         type: 3}
       propertyPath: _joystick

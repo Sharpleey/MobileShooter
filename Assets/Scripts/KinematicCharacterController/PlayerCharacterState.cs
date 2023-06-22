@@ -2,6 +2,6 @@
 public enum PlayerCharacterState
 {
     Default,
-    Charging,
+    Rolling,
     NoClip,
 }
