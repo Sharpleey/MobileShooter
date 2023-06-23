@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.18279709, g: 0.22850122, b: 0.3070176, a: 1}
+  m_IndirectSpecularColor: {r: 0.4473036, g: 0.49667698, b: 0.57292897, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &4
 LightmapSettings:
@@ -2023,6 +2023,18 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 7148080128e9c4540982c131257d3a44, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &980443856 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 1135921322421341829, guid: e4a8566795b349d42964aa1cf7d90f79,
+    type: 3}
+  m_PrefabInstance: {fileID: 1707138711}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4d1bc5515e3ab954e80599c538834774, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1 &982882446
@@ -4152,12 +4164,22 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 435513122443126193, guid: e4a8566795b349d42964aa1cf7d90f79,
         type: 3}
+      propertyPath: _motor
+      value: 
+      objectReference: {fileID: 980443856}
+    - target: {fileID: 435513122443126193, guid: e4a8566795b349d42964aa1cf7d90f79,
+        type: 3}
       propertyPath: _joystick
       value: 
       objectReference: {fileID: 0}
     - target: {fileID: 435513122443126193, guid: e4a8566795b349d42964aa1cf7d90f79,
         type: 3}
       propertyPath: jumpSpeed
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 435513122443126193, guid: e4a8566795b349d42964aa1cf7d90f79,
+        type: 3}
+      propertyPath: _jumpSpeed
       value: 10
       objectReference: {fileID: 0}
     - target: {fileID: 435513122443126193, guid: e4a8566795b349d42964aa1cf7d90f79,
@@ -4172,8 +4194,28 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 435513122443126193, guid: e4a8566795b349d42964aa1cf7d90f79,
         type: 3}
+      propertyPath: _maxRollTime
+      value: 0.6
+      objectReference: {fileID: 0}
+    - target: {fileID: 435513122443126193, guid: e4a8566795b349d42964aa1cf7d90f79,
+        type: 3}
       propertyPath: rollingSpeed
       value: 8
+      objectReference: {fileID: 0}
+    - target: {fileID: 435513122443126193, guid: e4a8566795b349d42964aa1cf7d90f79,
+        type: 3}
+      propertyPath: _rollingSpeed
+      value: 8
+      objectReference: {fileID: 0}
+    - target: {fileID: 435513122443126193, guid: e4a8566795b349d42964aa1cf7d90f79,
+        type: 3}
+      propertyPath: _maxAirMoveSpeed
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 435513122443126193, guid: e4a8566795b349d42964aa1cf7d90f79,
+        type: 3}
+      propertyPath: _maxStableMoveSpeed
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 776225512409394265, guid: e4a8566795b349d42964aa1cf7d90f79,
         type: 3}
@@ -4401,9 +4443,9 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents:
-    - {fileID: 5564212029642175717, guid: e4a8566795b349d42964aa1cf7d90f79, type: 3}
-    - {fileID: 1138545430844371717, guid: e4a8566795b349d42964aa1cf7d90f79, type: 3}
-    - {fileID: 5054100916229139625, guid: e4a8566795b349d42964aa1cf7d90f79, type: 3}
+    - {fileID: 0}
+    - {fileID: 0}
+    - {fileID: 0}
   m_SourcePrefab: {fileID: 100100000, guid: e4a8566795b349d42964aa1cf7d90f79, type: 3}
 --- !u!1 &1709629395
 GameObject:

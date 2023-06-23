@@ -4,42 +4,47 @@ using System.Collections.Generic;
 
 public class PlayerCharacterController : MonoBehaviour, ICharacterController
 {
-    public KinematicCharacterMotor motor;
+    #region Serialize fields
+    [SerializeField] private KinematicCharacterMotor _motor;
 
     [Header("Stable Movement")]
-    public float maxStableMoveSpeed = 10f;
-    public float stableMovementSharpness = 15;
-    public float orientationSharpness = 10;
+    [SerializeField] private float _maxStableMoveSpeed = 10f;
+    [SerializeField] private float _stableMovementSharpness = 15;
+    [SerializeField] private float _orientationSharpness = 10;
     [SerializeField] private OrientationMethod _orientationMethod = OrientationMethod.TowardsMovement;
 
     [Header("Air Movement")]
-    public float maxAirMoveSpeed = 10f;
-    public float airAccelerationSpeed = 5f;
-    public float drag = 0.1f;
+    [SerializeField] private float _maxAirMoveSpeed = 10f;
+    [SerializeField] private float _airAccelerationSpeed = 5f;
+    [SerializeField] private float _drag = 0.1f;
 
     [Header("Jumping")]
-    public bool allowJumpingWhenSliding = false;
-    public bool allowDoubleJump = false;
-    public bool allowWallJump = false;
-    public float jumpSpeed = 10f;
-    public float jumpPreGroundingGraceTime = 0f;
-    public float jumpPostGroundingGraceTime = 0f;
+    [SerializeField] private bool _allowJumpingWhenSliding = false;
+    [SerializeField] private bool _allowDoubleJump = false;
+    [SerializeField] private bool _allowWallJump = false;
+    [SerializeField] private float _jumpSpeed = 10f;
+    [SerializeField] private float _jumpPreGroundingGraceTime = 0f;
+    [SerializeField] private float _jumpPostGroundingGraceTime = 0f;
 
     [Header("Roll")]
-    public float rollingSpeed = 10f;
-    public float maxRollTime = 1.5f;
-    public float stoppedTime = 0;
+    [SerializeField] private float _rollingSpeed = 10f;
+    [SerializeField] private float _maxRollTime = 1.5f;
+    [SerializeField] private float _stoppedTime = 0;
 
     [Header("NoClip")]
-    public float NoClipMoveSpeed = 10f;
-    public float NoClipSharpness = 15;
+    [SerializeField] private float _noClipMoveSpeed = 10f;
+    [SerializeField] private float _NoClipSharpness = 15;
 
     [Header("Misc")]
-    public Vector3 gravity = new Vector3(0, -30f, 0);
-    public bool orientTowardsGravity = true;
-    public List<Collider> IgnoredColliders = new List<Collider>();
+    [SerializeField] private Vector3 _gravity = new Vector3(0, -30f, 0);
+    [SerializeField] private bool _orientTowardsGravity = true;
+    [SerializeField] private List<Collider> _ignoredColliders = new List<Collider>();
+    #endregion Serialize fields
 
-    public PlayerCharacterState CurrentCharacterState { get; private set; }
+    #region Private fields
+    private PlayerCharacterState CurrentCharacterState;
+
+    private Animator _animator;
 
     private Vector3 _moveInputVector;
     private Vector3 _lookInputVector;
@@ -64,8 +69,7 @@ public class PlayerCharacterController : MonoBehaviour, ICharacterController
     private float _timeSinceStartedCharge = 0;
     private float _timeSinceStopped = 0;
     #endregion
-
-    private Animator _animator;
+    #endregion Private fields
 
     public enum OrientationMethod
     {
@@ -76,7 +80,7 @@ public class PlayerCharacterController : MonoBehaviour, ICharacterController
     #region Mono
     void Start()
     {
-        motor.CharacterController = this;
+        _motor.CharacterController = this;
 
         _animator = GetComponentInChildren<Animator>();
 
@@ -112,7 +116,7 @@ public class PlayerCharacterController : MonoBehaviour, ICharacterController
                 {
                     _animator.SetTrigger(HashAnimParam.PlayerIsRoll);
 
-                    _currentChargeVelocity = motor.CharacterForward * rollingSpeed;
+                    _currentChargeVelocity = _motor.CharacterForward * _rollingSpeed;
                     _isStopped = false;
                     _timeSinceStartedCharge = 0f;
                     _timeSinceStopped = 0f;
@@ -120,9 +124,9 @@ public class PlayerCharacterController : MonoBehaviour, ICharacterController
                 }
             case PlayerCharacterState.NoClip:
                 {
-                    motor.SetCapsuleCollisionsActivation(false);
-                    motor.SetMovementCollisionsSolvingActivation(false);
-                    motor.SetGroundSolvingActivation(false);
+                    _motor.SetCapsuleCollisionsActivation(false);
+                    _motor.SetMovementCollisionsSolvingActivation(false);
+                    _motor.SetGroundSolvingActivation(false);
                     break;
                 }
         }
@@ -141,15 +145,16 @@ public class PlayerCharacterController : MonoBehaviour, ICharacterController
                 }
             case PlayerCharacterState.NoClip:
                 {
-                    motor.SetCapsuleCollisionsActivation(true);
-                    motor.SetMovementCollisionsSolvingActivation(true);
-                    motor.SetGroundSolvingActivation(true);
+                    _motor.SetCapsuleCollisionsActivation(true);
+                    _motor.SetMovementCollisionsSolvingActivation(true);
+                    _motor.SetGroundSolvingActivation(true);
                     break;
                 }
         }
     }
     #endregion State
 
+    #region Methods
     /// <summary> 
     /// MyPlayer вызывает это каждый кадр, чтобы сообщить персонажу, какие у него входные данные.
     /// </summary>
@@ -179,13 +184,13 @@ public class PlayerCharacterController : MonoBehaviour, ICharacterController
         Vector3 moveInputVector = Vector3.ClampMagnitude(new Vector3(inputs.moveAxisRight, 0f, inputs.moveAxisForward), 1f);
 
         // Calculate camera direction and rotation on the character plane
-        Vector3 cameraPlanarDirection = Vector3.ProjectOnPlane(inputs.cameraRotation * Vector3.forward, motor.CharacterUp).normalized;
+        Vector3 cameraPlanarDirection = Vector3.ProjectOnPlane(inputs.cameraRotation * Vector3.forward, _motor.CharacterUp).normalized;
         if (cameraPlanarDirection.sqrMagnitude == 0f)
         {
-            cameraPlanarDirection = Vector3.ProjectOnPlane(inputs.cameraRotation * Vector3.up, motor.CharacterUp).normalized;
+            cameraPlanarDirection = Vector3.ProjectOnPlane(inputs.cameraRotation * Vector3.up, _motor.CharacterUp).normalized;
         }
         
-        Quaternion cameraPlanarRotation = Quaternion.LookRotation(cameraPlanarDirection, motor.CharacterUp);
+        Quaternion cameraPlanarRotation = Quaternion.LookRotation(cameraPlanarDirection, _motor.CharacterUp);
 
         switch (CurrentCharacterState)
         {
@@ -259,37 +264,37 @@ public class PlayerCharacterController : MonoBehaviour, ICharacterController
         {
             case PlayerCharacterState.Default:
                 {
-                    if (_lookInputVector != Vector3.zero && orientationSharpness > 0f)
+                    if (_lookInputVector != Vector3.zero && _orientationSharpness > 0f)
                     {
                         // Плавная интерполяция от текущего к целевому направлению взгляда
-                        Vector3 smoothedLookInputDirection = Vector3.Slerp(motor.CharacterForward, _lookInputVector, 1 - Mathf.Exp(-orientationSharpness * deltaTime)).normalized;
+                        Vector3 smoothedLookInputDirection = Vector3.Slerp(_motor.CharacterForward, _lookInputVector, 1 - Mathf.Exp(-_orientationSharpness * deltaTime)).normalized;
 
                         // Установите текущее вращение (которое будет использоваться KinematicCharacterMotor)
-                        currentRotation = Quaternion.LookRotation(smoothedLookInputDirection, motor.CharacterUp);
+                        currentRotation = Quaternion.LookRotation(smoothedLookInputDirection, _motor.CharacterUp);
                     }
 
-                    if (orientTowardsGravity)
+                    if (_orientTowardsGravity)
                     {
                         // Поворот от текущей до инвертированной гравитации
-                        currentRotation = Quaternion.FromToRotation((currentRotation * Vector3.up), -gravity) * currentRotation;
+                        currentRotation = Quaternion.FromToRotation((currentRotation * Vector3.up), -_gravity) * currentRotation;
                     }
 
                     break;
                 }
             case PlayerCharacterState.NoClip:
                 {
-                    if (_lookInputVector != Vector3.zero && orientationSharpness > 0f)
+                    if (_lookInputVector != Vector3.zero && _orientationSharpness > 0f)
                     {
                         // Плавная интерполяция от текущего к целевому направлению взгляда
-                        Vector3 smoothedLookInputDirection = Vector3.Slerp(motor.CharacterForward, _lookInputVector, 1 - Mathf.Exp(-orientationSharpness * deltaTime)).normalized;
+                        Vector3 smoothedLookInputDirection = Vector3.Slerp(_motor.CharacterForward, _lookInputVector, 1 - Mathf.Exp(-_orientationSharpness * deltaTime)).normalized;
 
                         // Установите текущее вращение (которое будет использоваться KinematicCharacterMotor)
-                        currentRotation = Quaternion.LookRotation(smoothedLookInputDirection, motor.CharacterUp);
+                        currentRotation = Quaternion.LookRotation(smoothedLookInputDirection, _motor.CharacterUp);
                     }
-                    if (orientTowardsGravity)
+                    if (_orientTowardsGravity)
                     {
                         // Поворот от текущей до инвертированной гравитации
-                        currentRotation = Quaternion.FromToRotation((currentRotation * Vector3.up), -gravity) * currentRotation;
+                        currentRotation = Quaternion.FromToRotation((currentRotation * Vector3.up), -_gravity) * currentRotation;
                     }
                     break;
                 }
@@ -308,21 +313,21 @@ public class PlayerCharacterController : MonoBehaviour, ICharacterController
             case PlayerCharacterState.Default:
                 {
                     Vector3 targetMovementVelocity = Vector3.zero;
-                    if (motor.GroundingStatus.IsStableOnGround)
+                    if (_motor.GroundingStatus.IsStableOnGround)
                     {
                         // Переориентируем скорость источника на текущий уклон земли (это необходимо потому, что мы не хотим, чтобы наше сглаживание приводило к потерям скорости при изменении уклона).
-                        currentVelocity = motor.GetDirectionTangentToSurface(currentVelocity, motor.GroundingStatus.GroundNormal) * currentVelocity.magnitude;
+                        currentVelocity = _motor.GetDirectionTangentToSurface(currentVelocity, _motor.GroundingStatus.GroundNormal) * currentVelocity.magnitude;
 
                         // Рассчитать целевую скорость
-                        Vector3 inputRight = Vector3.Cross(_moveInputVector, motor.CharacterUp);
-                        Vector3 reorientedInput = Vector3.Cross(motor.GroundingStatus.GroundNormal, inputRight).normalized * _moveInputVector.magnitude;
-                        targetMovementVelocity = reorientedInput * maxStableMoveSpeed;
+                        Vector3 inputRight = Vector3.Cross(_moveInputVector, _motor.CharacterUp);
+                        Vector3 reorientedInput = Vector3.Cross(_motor.GroundingStatus.GroundNormal, inputRight).normalized * _moveInputVector.magnitude;
+                        targetMovementVelocity = reorientedInput * _maxStableMoveSpeed;
 
                         // Сглаживаем скорость
-                        currentVelocity = Vector3.Lerp(currentVelocity, targetMovementVelocity, 1 - Mathf.Exp(-stableMovementSharpness * deltaTime));
+                        currentVelocity = Vector3.Lerp(currentVelocity, targetMovementVelocity, 1 - Mathf.Exp(-_stableMovementSharpness * deltaTime));
 
                         // Задаем аниматору параметр
-                        _animator.SetFloat(HashAnimParam.PlayerVelocity, currentVelocity.magnitude/maxStableMoveSpeed);
+                        _animator.SetFloat(HashAnimParam.PlayerVelocity, currentVelocity.magnitude/_maxStableMoveSpeed);
 
                         _animator.SetBool(HashAnimParam.PlayerOnAir, false);
                     }
@@ -331,24 +336,24 @@ public class PlayerCharacterController : MonoBehaviour, ICharacterController
                         // Добавляем ввод перемещения
                         if (_moveInputVector.sqrMagnitude > 0f)
                         {
-                            targetMovementVelocity = _moveInputVector * maxAirMoveSpeed;
+                            targetMovementVelocity = _moveInputVector * _maxAirMoveSpeed;
 
                             // Предотвращение подъема на неустойчивых склонах с помощью движения воздуха
-                            if (motor.GroundingStatus.FoundAnyGround)
+                            if (_motor.GroundingStatus.FoundAnyGround)
                             {
-                                Vector3 perpenticularObstructionNormal = Vector3.Cross(Vector3.Cross(motor.CharacterUp, motor.GroundingStatus.GroundNormal), motor.CharacterUp).normalized;
+                                Vector3 perpenticularObstructionNormal = Vector3.Cross(Vector3.Cross(_motor.CharacterUp, _motor.GroundingStatus.GroundNormal), _motor.CharacterUp).normalized;
                                 targetMovementVelocity = Vector3.ProjectOnPlane(targetMovementVelocity, perpenticularObstructionNormal);
                             }
 
-                            Vector3 velocityDiff = Vector3.ProjectOnPlane(targetMovementVelocity - currentVelocity, gravity);
-                            currentVelocity += velocityDiff * airAccelerationSpeed * deltaTime;
+                            Vector3 velocityDiff = Vector3.ProjectOnPlane(targetMovementVelocity - currentVelocity, _gravity);
+                            currentVelocity += velocityDiff * _airAccelerationSpeed * deltaTime;
                         }
 
                         // Gravity
-                        currentVelocity += gravity * deltaTime;
+                        currentVelocity += _gravity * deltaTime;
 
                         // Drag
-                        currentVelocity *= (1f / (1f + (drag * deltaTime)));
+                        currentVelocity *= (1f / (1f + (_drag * deltaTime)));
 
                         _animator.SetBool(HashAnimParam.PlayerOnAir, true);
                     }
@@ -359,14 +364,14 @@ public class PlayerCharacterController : MonoBehaviour, ICharacterController
                     if (_jumpRequested)
                     {
                         // Handle double jump
-                        if (allowDoubleJump)
+                        if (_allowDoubleJump)
                         {
-                            if (_jumpConsumed && !_doubleJumpConsumed && (allowJumpingWhenSliding ? !motor.GroundingStatus.FoundAnyGround : !motor.GroundingStatus.IsStableOnGround))
+                            if (_jumpConsumed && !_doubleJumpConsumed && (_allowJumpingWhenSliding ? !_motor.GroundingStatus.FoundAnyGround : !_motor.GroundingStatus.IsStableOnGround))
                             {
-                                motor.ForceUnground(0.1f);
+                                _motor.ForceUnground(0.1f);
 
                                 // Add to the return velocity and reset jump state
-                                currentVelocity += (motor.CharacterUp * jumpSpeed) - Vector3.Project(currentVelocity, motor.CharacterUp);
+                                currentVelocity += (_motor.CharacterUp * _jumpSpeed) - Vector3.Project(currentVelocity, _motor.CharacterUp);
                                 _jumpRequested = false;
                                 _doubleJumpConsumed = true;
                                 _jumpedThisFrame = true;
@@ -374,25 +379,25 @@ public class PlayerCharacterController : MonoBehaviour, ICharacterController
                         }
 
                         // Посмотрим, действительно ли нам разрешено прыгать
-                        if (_canWallJump || (!_jumpConsumed && ((allowJumpingWhenSliding ? motor.GroundingStatus.FoundAnyGround : motor.GroundingStatus.IsStableOnGround) || _timeSinceLastAbleToJump <= jumpPostGroundingGraceTime)))
+                        if (_canWallJump || (!_jumpConsumed && ((_allowJumpingWhenSliding ? _motor.GroundingStatus.FoundAnyGround : _motor.GroundingStatus.IsStableOnGround) || _timeSinceLastAbleToJump <= _jumpPostGroundingGraceTime)))
                         {
                             // Рассчитайте направление прыжка перед разземлением
-                            Vector3 jumpDirection = motor.CharacterUp;
+                            Vector3 jumpDirection = _motor.CharacterUp;
                             if (_canWallJump)
                             {
                                 jumpDirection = _wallJumpNormal;
                             }
-                            else if (motor.GroundingStatus.FoundAnyGround && !motor.GroundingStatus.IsStableOnGround)
+                            else if (_motor.GroundingStatus.FoundAnyGround && !_motor.GroundingStatus.IsStableOnGround)
                             {
-                                jumpDirection = motor.GroundingStatus.GroundNormal;
+                                jumpDirection = _motor.GroundingStatus.GroundNormal;
                             }
 
                             // Заставляет персонажа пропустить зондирование/ощупывание земли при следующем обновлении. 
                             // Если бы этой строки не было, персонаж оставался бы прикрепленным к земле при попытке прыжка
-                            motor.ForceUnground(0.1f);
+                            _motor.ForceUnground(0.1f);
 
                             // Добавить к скорости возврата и сбросить состояние прыжка
-                            currentVelocity += (jumpDirection * jumpSpeed) - Vector3.Project(currentVelocity, motor.CharacterUp);
+                            currentVelocity += (jumpDirection * _jumpSpeed) - Vector3.Project(currentVelocity, _motor.CharacterUp);
                             _jumpRequested = false;
                             _jumpConsumed = true;
                             _jumpedThisFrame = true;
@@ -424,7 +429,7 @@ public class PlayerCharacterController : MonoBehaviour, ICharacterController
                     if (_isStopped)
                     {
                         // When stopped, do no velocity handling except gravity
-                        currentVelocity += gravity * deltaTime;
+                        currentVelocity += _gravity * deltaTime;
                     }
                     else
                     {
@@ -432,7 +437,7 @@ public class PlayerCharacterController : MonoBehaviour, ICharacterController
                         float previousY = currentVelocity.y;
                         currentVelocity = _currentChargeVelocity;
                         currentVelocity.y = previousY;
-                        currentVelocity += gravity * deltaTime;
+                        currentVelocity += _gravity * deltaTime;
                     }
                     break;
                 }
@@ -441,8 +446,8 @@ public class PlayerCharacterController : MonoBehaviour, ICharacterController
                     float verticalInput = 0f + (_jumpInputIsHeld ? 1f : 0f);
 
                     // Smoothly interpolate to target velocity
-                    Vector3 targetMovementVelocity = (_moveInputVector + (motor.CharacterUp * verticalInput)).normalized * NoClipMoveSpeed;
-                    currentVelocity = Vector3.Lerp(currentVelocity, targetMovementVelocity, 1 - Mathf.Exp(-NoClipSharpness * deltaTime));
+                    Vector3 targetMovementVelocity = (_moveInputVector + (_motor.CharacterUp * verticalInput)).normalized * _noClipMoveSpeed;
+                    currentVelocity = Vector3.Lerp(currentVelocity, targetMovementVelocity, 1 - Mathf.Exp(-_NoClipSharpness * deltaTime));
                     break;
                 }
         }
@@ -455,13 +460,13 @@ public class PlayerCharacterController : MonoBehaviour, ICharacterController
             case PlayerCharacterState.Default:
                 {
                     // Преодолеть отсрочку прыжков перед прыжком
-                    if (_jumpRequested && _timeSinceJumpRequested > jumpPreGroundingGraceTime)
+                    if (_jumpRequested && _timeSinceJumpRequested > _jumpPreGroundingGraceTime)
                     {
                         _jumpRequested = false;
                     }
 
                     // Управлять прыжками во время скольжения
-                    if (allowJumpingWhenSliding ? motor.GroundingStatus.FoundAnyGround : motor.GroundingStatus.IsStableOnGround)
+                    if (_allowJumpingWhenSliding ? _motor.GroundingStatus.FoundAnyGround : _motor.GroundingStatus.IsStableOnGround)
                     {
                         // Если мы находимся на поверхности земли, сбросьте значения прыжков.
                         if (!_jumpedThisFrame)
@@ -482,14 +487,14 @@ public class PlayerCharacterController : MonoBehaviour, ICharacterController
             case PlayerCharacterState.Rolling:
                 {
                     // Detect being stopped by elapsed time
-                    if (!_isStopped && _timeSinceStartedCharge > maxRollTime)
+                    if (!_isStopped && _timeSinceStartedCharge > _maxRollTime)
                     {
                         _mustStopVelocity = true;
                         _isStopped = true;
                     }
 
                     // Detect end of stopping phase and transition back to default movement state
-                    if (_timeSinceStopped > stoppedTime)
+                    if (_timeSinceStopped > _stoppedTime)
                     {
                         TransitionToState(PlayerCharacterState.Default);
                     }
@@ -501,7 +506,7 @@ public class PlayerCharacterController : MonoBehaviour, ICharacterController
 
     public bool IsColliderValidForCollisions(Collider coll)
     {
-        if (IgnoredColliders.Contains(coll))
+        if (_ignoredColliders.Contains(coll))
             return false;
         return true;
     }
@@ -518,7 +523,7 @@ public class PlayerCharacterController : MonoBehaviour, ICharacterController
             case PlayerCharacterState.Default:
                 {
                     // Мы можем прыгать от стены, только если мы не устойчивы на земле и движемся против препятствия.
-                    if (allowWallJump && !motor.GroundingStatus.IsStableOnGround && !hitStabilityReport.IsStable)
+                    if (_allowWallJump && !_motor.GroundingStatus.IsStableOnGround && !hitStabilityReport.IsStable)
                     {
                         _canWallJump = true;
                         _wallJumpNormal = hitNormal;
@@ -561,11 +566,11 @@ public class PlayerCharacterController : MonoBehaviour, ICharacterController
     public void PostGroundingUpdate(float deltaTime)
     {
         // Обработка приземления на землю и отрыва от нее
-        if (motor.GroundingStatus.IsStableOnGround && !motor.LastGroundingStatus.IsStableOnGround)
+        if (_motor.GroundingStatus.IsStableOnGround && !_motor.LastGroundingStatus.IsStableOnGround)
         {
             OnLanded();
         }
-        else if (!motor.GroundingStatus.IsStableOnGround && motor.LastGroundingStatus.IsStableOnGround)
+        else if (!_motor.GroundingStatus.IsStableOnGround && _motor.LastGroundingStatus.IsStableOnGround)
         {
             OnLeaveStableGround();
         }
@@ -585,4 +590,5 @@ public class PlayerCharacterController : MonoBehaviour, ICharacterController
     {
         _animator.SetTrigger(HashAnimParam.PlayerIsLeaveStableGround);
     }
+    #endregion Methods
 }

@@ -16,10 +16,6 @@ public class MobilePlayerInputHandler : MonoBehaviour
     [SerializeField] private Joystick _movementJoystick;
     [SerializeField] private Joystick _cameraJoystick;
 
-    [Header("Buttons")]
-    [SerializeField] private Button _jumpButton;
-    [SerializeField] private Button _rollButton;
-    [SerializeField] private Button _aimingButton;
     #endregion Serialize fields
 
     #region Properties
